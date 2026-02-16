@@ -93,7 +93,7 @@
 
         // Add spotlights for art pieces
         const spotlights = [];
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 10; i++) {
             const spotlight = new THREE.SpotLight(0xffffff, 2, 20, Math.PI / 6, 0.5, 1);
             spotlight.castShadow = true;
             spotlights.push(spotlight);
@@ -293,6 +293,179 @@
             return group;
         }
 
+        // Art Piece 7: Particle Storm
+        function createArtPiece7() {
+            const group = new THREE.Group();
+            const particles = 50;
+            const colors = [0xff6b9d, 0xc44569, 0xffa502, 0xff6348, 0xee5a6f];
+            
+            for (let i = 0; i < particles; i++) {
+                const geometry = new THREE.SphereGeometry(0.03, 8, 8);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: colors[i % colors.length],
+                    roughness: 0.3,
+                    metalness: 0.7,
+                    emissive: colors[i % colors.length],
+                    emissiveIntensity: 0.3
+                });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // Random position in sphere
+                const radius = Math.random() * 0.8;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+                
+                mesh.position.x = radius * Math.sin(phi) * Math.cos(theta);
+                mesh.position.y = radius * Math.sin(phi) * Math.sin(theta);
+                mesh.position.z = radius * Math.cos(phi);
+                mesh.castShadow = true;
+                
+                // Store animation data
+                mesh.userData = {
+                    basePos: mesh.position.clone(),
+                    offset: i
+                };
+                
+                group.add(mesh);
+            }
+            return group;
+        }
+
+        // Art Piece 8: Mandelbrot Fragment
+        function createArtPiece8() {
+            const group = new THREE.Group();
+            const colors = [0x9b59b6, 0x8e44ad, 0x2c3e50, 0x34495e];
+            const iterations = 20;
+            
+            for (let x = -10; x < 10; x++) {
+                for (let y = -10; y < 10; y++) {
+                    const cx = x / 15 - 0.5;
+                    const cy = y / 15;
+                    
+                    let zx = 0, zy = 0;
+                    let i = 0;
+                    
+                    while (i < iterations && zx * zx + zy * zy < 4) {
+                        const tmp = zx * zx - zy * zy + cx;
+                        zy = 2 * zx * zy + cy;
+                        zx = tmp;
+                        i++;
+                    }
+                    
+                    if (i < iterations && i > 2) {
+                        const geometry = new THREE.BoxGeometry(0.05, 0.05, i * 0.02);
+                        const material = new THREE.MeshStandardMaterial({ 
+                            color: colors[i % colors.length],
+                            roughness: 0.4,
+                            metalness: 0.6
+                        });
+                        const mesh = new THREE.Mesh(geometry, material);
+                        mesh.position.x = x * 0.05;
+                        mesh.position.y = y * 0.05;
+                        mesh.position.z = i * 0.01;
+                        mesh.castShadow = true;
+                        group.add(mesh);
+                    }
+                }
+            }
+            return group;
+        }
+
+        // Art Piece 9: DNA Twist
+        function createArtPiece9() {
+            const group = new THREE.Group();
+            const segments = 30;
+            const radius = 0.4;
+            
+            // Create two helixes
+            for (let helix = 0; helix < 2; helix++) {
+                const helixGroup = new THREE.Group();
+                const color = helix === 0 ? 0x00d2d3 : 0xf368e0;
+                
+                for (let i = 0; i < segments; i++) {
+                    const angle = (i / segments) * Math.PI * 4 + (helix * Math.PI);
+                    const y = (i / segments) * 2 - 1;
+                    
+                    // Nucleotide sphere
+                    const geometry = new THREE.SphereGeometry(0.08, 16, 16);
+                    const material = new THREE.MeshStandardMaterial({ 
+                        color: color,
+                        roughness: 0.2,
+                        metalness: 0.8,
+                        emissive: color,
+                        emissiveIntensity: 0.2
+                    });
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.y = y;
+                    mesh.position.z = Math.sin(angle) * radius;
+                    mesh.castShadow = true;
+                    helixGroup.add(mesh);
+                    
+                    // Connecting bars (every 3 nucleotides)
+                    if (i % 3 === 0 && i < segments - 1) {
+                        const barGeometry = new THREE.CylinderGeometry(0.02, 0.02, radius * 2, 8);
+                        const barMaterial = new THREE.MeshStandardMaterial({ 
+                            color: 0xdcdde1,
+                            roughness: 0.5,
+                            metalness: 0.3
+                        });
+                        const bar = new THREE.Mesh(barGeometry, barMaterial);
+                        bar.position.y = y;
+                        bar.rotation.z = Math.PI / 2;
+                        bar.castShadow = true;
+                        group.add(bar);
+                    }
+                }
+                group.add(helixGroup);
+            }
+            return group;
+        }
+
+        // Art Piece 10: Crystal Lattice
+        function createArtPiece10() {
+            const group = new THREE.Group();
+            const colors = [0x00f2c3, 0x0cd8e4, 0x00d9ff, 0x48dbfb];
+            const latticeSize = 5;
+            
+            for (let x = -latticeSize; x <= latticeSize; x++) {
+                for (let y = -latticeSize; y <= latticeSize; y++) {
+                    for (let z = -latticeSize; z <= latticeSize; z++) {
+                        // Only create vertices at specific lattice points
+                        if ((x + y + z) % 2 === 0) {
+                            const geometry = new THREE.OctahedronGeometry(0.06, 0);
+                            const material = new THREE.MeshStandardMaterial({ 
+                                color: colors[(Math.abs(x) + Math.abs(y) + Math.abs(z)) % colors.length],
+                                roughness: 0.1,
+                                metalness: 0.9,
+                                transparent: true,
+                                opacity: 0.8
+                            });
+                            const mesh = new THREE.Mesh(geometry, material);
+                            mesh.position.set(x * 0.15, y * 0.15, z * 0.15);
+                            mesh.castShadow = true;
+                            group.add(mesh);
+                            
+                            // Add connecting lines
+                            if (x < latticeSize) {
+                                const lineGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.15, 4);
+                                const lineMaterial = new THREE.MeshStandardMaterial({ 
+                                    color: 0xaaaaaa,
+                                    roughness: 0.7,
+                                    metalness: 0.3
+                                });
+                                const line = new THREE.Mesh(lineGeometry, lineMaterial);
+                                line.position.set(x * 0.15 + 0.075, y * 0.15, z * 0.15);
+                                line.rotation.z = Math.PI / 2;
+                                group.add(line);
+                            }
+                        }
+                    }
+                }
+            }
+            return group;
+        }
+
         // Position art pieces
         const artData = [
             { create: createArtPiece1, pos: [-10, 2.5, -9.8], name: "Abstract Geometry" },
@@ -300,7 +473,11 @@
             { create: createArtPiece3, pos: [0, 2.5, -9.8], name: "Golden Spiral" },
             { create: createArtPiece4, pos: [5, 2.5, -9.8], name: "Floating Cosmos" },
             { create: createArtPiece5, pos: [10, 2.5, -9.8], name: "Triple Helix" },
-            { create: createArtPiece6, pos: [0, 2.5, 5], name: "Ocean Waves" }
+            { create: createArtPiece6, pos: [0, 2.5, 5], name: "Ocean Waves" },
+            { create: createArtPiece7, pos: [-14, 2.5, 0], name: "Particle Storm" },
+            { create: createArtPiece8, pos: [-14, 2.5, -5], name: "Mandelbrot Fragment" },
+            { create: createArtPiece9, pos: [14, 2.5, 0], name: "DNA Twist" },
+            { create: createArtPiece10, pos: [14, 2.5, -5], name: "Crystal Lattice" }
         ];
 
         artData.forEach((data, i) => {
@@ -383,6 +560,18 @@
             // Animate art pieces
             artPieces.forEach((art, i) => {
                 art.rotation.y = Math.sin(time + i) * 0.1;
+                
+                // Special animation for Particle Storm (piece 7, index 6)
+                if (i === 6 && art.children.length > 0) {
+                    art.children.forEach((particle) => {
+                        if (particle.userData.basePos) {
+                            const offset = particle.userData.offset;
+                            particle.position.x = particle.userData.basePos.x + Math.sin(time * 2 + offset) * 0.1;
+                            particle.position.y = particle.userData.basePos.y + Math.cos(time * 2 + offset) * 0.1;
+                            particle.position.z = particle.userData.basePos.z + Math.sin(time * 3 + offset) * 0.1;
+                        }
+                    });
+                }
             });
 
             // Movement
